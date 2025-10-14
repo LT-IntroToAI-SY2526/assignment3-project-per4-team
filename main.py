@@ -60,7 +60,7 @@ def artist_by_song(matches: List[str]) -> List[str]:
     title = matches[0]
     result = []
     for music in music_db:
-        if get_title(music) == title:
+        if get_title(music).lower() == title.lower():
             result.append(get_artist(music))
     return result
 
@@ -83,11 +83,11 @@ def year_by_song(matches: List[str]) -> List[str]:
     return result
 
 def songs_by_genre(matches: List[str]) -> List[str]:
-    genre = matches[0]
-    return [get_title(s) for s in music_db if genre in get_genres(s)]
+    genre = matches[0].lower()
+    return [get_title(s) for s in music_db if any(g.lower() == genre for g in get_genres(s))]
 
 def earliest_song(matches: List[str]) -> List[str]:
-    if not music:
+    if not music_db:
         return []
     min_year = min(get_year(m) for m in music_db)
     return [get_title(m) for m in music_db if get_year(m) == min_year]
@@ -139,15 +139,110 @@ def query_loop() -> None:
     print("\nGoodbye!\n")
 
 # --- TESTS ---
-
 if __name__ == "__main__":
+    # --- Songs by year ---
     assert sorted(songs_by_year(["1975"])) == ["Bohemian Rhapsody"]
+    assert sorted(songs_by_year(["1991"])) == ["Lithium", "Smells Like Teen Spirit"]
+    assert sorted(songs_by_year(["2017"])) == ["Shape of You"]
+
+    # --- Songs by artist ---
     assert sorted(songs_by_artist(["Queen"])) == ["Bohemian Rhapsody"]
+    assert sorted(songs_by_artist(["Nirvana"])) == ["Come As You Are", "Heart-Shaped Box", "Lithium", "Smells Like Teen Spirit"]
+    assert sorted(songs_by_artist(["Mac Miller"])) == ["Good News", "Ladders", "Nikes on My Feet", "Self Care", "The Spins"]
+    assert sorted(songs_by_artist(["A$AP Rocky"])) == ["Goldie", "L$D", "Peso", "Praise The Lord (Da Shine)"]
+
+    # --- Artist by song ---
     assert sorted(artist_by_song(["Imagine"])) == ["John Lennon"]
-    assert sorted(songs_before_year(["1980"])) == sorted(["Imagine", "Like a Rolling Stone", "Bohemian Rhapsody"])
-    assert sorted(songs_after_year(["1990"])) == sorted(["Smells Like Teen Spirit", "Shape of You"])
-    assert sorted(year_by_song(["Billie Jean"])) == [1982]
-    assert sorted(songs_by_genre(["Pop"])) == sorted(["Billie Jean", "Shape of You"])
+    assert sorted(artist_by_song(["Shape of You"])) == ["Ed Sheeran"]
+    assert sorted(artist_by_song(["Bohemian Rhapsody"])) == ["Queen"]
+    assert sorted(artist_by_song(["Smells Like Teen Spirit"])) == ["Nirvana"]
+
+    # --- Songs before year ---
+    assert sorted(songs_before_year(["1980"])) == sorted([
+        "Imagine",
+        "Superstition",
+        "Like a Rolling Stone",
+        "Hey Jude",
+        "Bohemian Rhapsody",
+        "Hotel California",
+        "Stayin' Alive",
+        "Dreams",
+        "Go Your Own Way",
+        "September"
+    ])
+
+    # --- Songs after year ---
+    assert sorted(songs_after_year(["2015"])) == sorted([
+        "Shape of You",
+        "Self Care",
+        "Ladders",
+        "Good News",
+        "Praise The Lord (Da Shine)"
+    ])
+
+    # --- Year by song ---
+    assert sorted(year_by_song(["Billie Jean"])) == [1983]
+    assert sorted(year_by_song(["Smells Like Teen Spirit"])) == [1991]
+    assert sorted(year_by_song(["Shape of You"])) == [2017]
+
+    # --- Songs by genre ---
+    assert sorted(songs_by_genre(["Pop"])) == sorted([
+        "Beat It",
+        "Billie Jean",
+        "Clocks",
+        "Empire State of Mind",
+        "Purple Rain",
+        "Rolling in the Deep",
+        "Shape of You",
+        "Stayin' Alive",
+        "Thriller",
+        "Uptown Funk",
+        "Viva La Vida"
+    ])
+    assert sorted(songs_by_genre(["Grunge"])) == sorted([
+        "Smells Like Teen Spirit",
+        "Come As You Are",
+        "Lithium",
+        "Heart-Shaped Box"
+    ])
+    assert sorted(songs_by_genre(["Hip Hop"])) == sorted([
+        "Lose Yourself",
+        "Nikes on My Feet",
+        "Self Care",
+        "The Spins",
+        "Good News",
+        "Ladders",
+        "Praise The Lord (Da Shine)",
+        "L$D",
+        "Peso",
+        "Goldie",
+        "Empire State of Mind"
+    ])
+
+    assert sorted(songs_by_genre(["Rock"])) == sorted([
+        'Africa',
+        'Beat It',
+        'Bohemian Rhapsody',
+        'Clocks',
+        'Come As You Are',
+        "Don't Stop Believin'",
+        'Dreams',
+        'Every Breath You Take',
+        'Go Your Own Way',
+        'Heart-Shaped Box',
+        'Hey Jude',
+        'Hotel California',
+        'Lithium',
+        'Mr. Brightside',
+        'Purple Rain',
+        'Radioactive',
+        'Smells Like Teen Spirit',
+        'Thriller',
+        'Viva La Vida',
+        'Wonderwall'
+    ])
+
+    # --- Pattern-action search ---
     assert sorted(search_pa_list(["who", "sang", "imagine"])) == ["John Lennon"]
     assert sorted(search_pa_list(["what", "was", "the", "earliest", "song"])) == ["Like a Rolling Stone"]
 
