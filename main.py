@@ -138,6 +138,10 @@ def query_loop() -> None:
             break
     print("\nGoodbye!\n")
 
+
+if __name__ == "__main__":
+    query_loop()
+"""
 # --- TESTS ---
 if __name__ == "__main__":
     # --- Songs by year ---
@@ -247,3 +251,4 @@ if __name__ == "__main__":
     assert sorted(search_pa_list(["what", "was", "the", "earliest", "song"])) == ["Like a Rolling Stone"]
 
     print("All tests passed!")
+"""
